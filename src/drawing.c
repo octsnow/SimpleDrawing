@@ -137,10 +137,6 @@ void SetPix(int x, int y, int32_t p) {
     int outRGB = (srcRGB * srcA + dstRGB * dstA * (1 - srcA)) / outA;
     outRGB = outA == 0 ? 0 : outRGB;
     *target = ((int)(outA * 0xFF) << 24) | outRGB;
-
-//    *target = p;
-
-    printf("%f", outA);
 }
 
 void DrawLine(int x1, int y1, int x2, int y2, int32_t color) {
