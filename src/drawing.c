@@ -6,6 +6,7 @@
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "Gdi32.lib")
 
+#define CHANNEL 4
 #define BITCOUNT 8 * CHANNEL
 #define MILLISEC_PER_FRAME 1000 / FPS
 
@@ -35,7 +36,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 }
 
 void ClearScreen() {
-    memset(pImage, 0, WINDOW_W * WINDOW_H * 3);
+    memset(pImage, 0xFF000000, WINDOW_W * WINDOW_H * 3);
 }
 
 int WINAPI Start() {
@@ -127,7 +128,19 @@ void SetPix(int x, int y, int32_t p) {
     if(x < 0 || x >= WINDOW_W || y < 0 || y >= WINDOW_H) {
         return;
     }
-    *(int32_t*)(pImage + (y * WINDOW_W + x) * CHANNEL) = p;
+    int32_t* target = (int32_t*)(pImage + (y * WINDOW_W + x) * CHANNEL);
+    float srcA = ((p >> 24) & 0xFF) / 255.0f;
+    float dstA = ((*target >> 24) & 0xFF) / 255.0f;
+    int srcRGB = p & 0xFFFFFF;
+    int dstRGB = *target & 0xFFFFFF;
+    float outA = srcA + dstA * (1 - srcA);
+    int outRGB = (srcRGB * srcA + dstRGB * dstA * (1 - srcA)) / outA;
+    outRGB = outA == 0 ? 0 : outRGB;
+    *target = ((int)(outA * 0xFF) << 24) | outRGB;
+
+//    *target = p;
+
+    printf("%f", outA);
 }
 
 void DrawLine(int x1, int y1, int x2, int y2, int32_t color) {
@@ -251,10 +264,10 @@ void DrawLine(int x1, int y1, int x2, int y2, int32_t color) {
     }
 }
 
-void DrawRect(int x1, int y1, int x2, int y2, int32_t color) {
-    for(int x = x1; x < x2; x++) {
-        for(int y = y1; y < y2; y++) {
-            SetPix(x, y, color);
+void DrawRect(int x1, int y1, int w, int h, int32_t color) {
+    for(int x = 0; x < w; x++) {
+        for(int y = 0; y < h; y++) {
+            SetPix(x + x1, y + y1, color);
         }
     }
 }
@@ -310,5 +323,16 @@ void DrawCircle(int x0, int y0, int r, int32_t color, int fillFlag) {
 }
 
 void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int32_t color) {
-    int vx1
+    int miny = y1 > y2 ? (y2 > y3 ? y3 : y2) : (y1 > y3 ? y3 : y1);
+    int maxy = y1 > y2 ? (y1 > y3 ? y1 : y3) : (y2 > y3 ? y2 : y3);
+
+    if(miny >= WINDOW_H || maxy < 0) {
+        return;
+    }
+
+    miny = miny < 0 ? 0 : miny;
+    maxy = maxy >= WINDOW_H ? WINDOW_H : maxy;
+
+    for(int y = miny; y <= maxy; y++) {
+    }
 }
