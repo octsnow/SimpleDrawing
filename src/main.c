@@ -8,6 +8,7 @@ void Update() {
     DrawRect(gX + 20, gY + 20, 100, 100, 0x0FFF00FF);
     DrawRect(gX + 40, gY + 40, 100, 100, 0x0F00FF00);
     DrawCircle(200, 200, 50, 0xFF00FFFF, TRUE);
+    DrawTriangle(100, 100, 50, 200, 150, 300, 0xFFFFFFFF);
 
     static const int speed = 10;
     if(GetAsyncKeyState(VK_LEFT)) {

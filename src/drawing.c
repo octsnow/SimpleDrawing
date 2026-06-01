@@ -318,17 +318,73 @@ void DrawCircle(int x0, int y0, int r, int32_t color, int fillFlag) {
     }
 }
 
-void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int32_t color) {
-    int miny = y1 > y2 ? (y2 > y3 ? y3 : y2) : (y1 > y3 ? y3 : y1);
-    int maxy = y1 > y2 ? (y1 > y3 ? y1 : y3) : (y2 > y3 ? y2 : y3);
+void _DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int32_t color, int dy) {
+    int h = y1 - y3;
+    printf("%d ", h);
+    for(int y = 0; y * dy < h * dy; y += dy) {
+        int _x1 = y * (x1 - x2) / (y1 - y2) + x2;
+        int _x2 = y * (x1 - x3) / (y1 - y3) + x3;
 
-    if(miny >= WINDOW_H || maxy < 0) {
+        for(int x = _x1; x <= _x2; x++) {
+            SetPix(x, y + y2, color);
+        }
+    }
+}
+
+void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int32_t color) {
+    int x, y;
+    if(y1 > y2) {
+        x = x1;
+        y = y1;
+        x1 = x2;
+        y1 = y2;
+        x2 = x;
+        y2 = y;
+    }
+    if(y1 > y3) {
+        x = x3;
+        y = y3;
+        x3 = x2;
+        y3 = y2;
+        x2 = x1;
+        y2 = y1;
+        x1 = x;
+        y1 = y;
+    } else if(y2 > y3) {
+        x = x2;
+        y = y2;
+        x2 = x3;
+        y2 = y3;
+        x3 = x;
+        y3 = y;
+    }
+
+
+    if(y1 == y2) {
+        if(x1 < x2) {
+            _DrawTriangle(x3, y3, x1, y1, x2, y2, color, 1);
+        } else {
+            _DrawTriangle(x3, y3, x2, y2, x1, y1, color, 1);
+        }
         return;
     }
 
-    miny = miny < 0 ? 0 : miny;
-    maxy = maxy >= WINDOW_H ? WINDOW_H : maxy;
+    if(y2 == y3) {
+        if(x2 < x3) {
+            _DrawTriangle(x1, y1, x2, y2, x3, y3, color, -1);
+        } else {
+            _DrawTriangle(x1, y1, x3, y3, x2, y2, color, -1);
+        }
+        return;
+    }
 
-    for(int y = miny; y <= maxy; y++) {
+    int xa = x3 * (y2 - y1) / (float)(y3 - y1) + x1 * (y2 - y3) / (float)(y1 - y3);
+
+    if(xa < x2) {
+        _DrawTriangle(x1, y1, xa, y2, x2, y2, color, -1);
+        _DrawTriangle(x3, y3, xa, y2, x2, y2, color, 1);
+    } else {
+        _DrawTriangle(x1, y1, x2, y2, xa, y2, color, -1);
+        _DrawTriangle(x3, y3, x2, y2, xa, y2, color, 1);
     }
 }

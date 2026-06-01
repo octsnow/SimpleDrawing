@@ -4,7 +4,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 INC_DIR = includes
 OUT_DIR = out
-INCS = $(INC_DIR) ../OctBinary/includes
+INCS = $(INC_DIR)
 
 IGNORE = $(SRC_DIR)/main.c
 LIB_SRCS = $(filter-out $(IGNORE), $(wildcard $(SRC_DIR)/*.c))
