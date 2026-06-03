@@ -1,4 +1,12 @@
-﻿#include "drawing.h"
+﻿#include "Wav.hpp"
+#include "drawing.hpp"
+#include "sound.hpp"
+
+#pragma comment(lib, "oct_binary.lib")
+#pragma comment(lib, "oct_wav.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "Gdi32.lib")
+#pragma comment(lib, "Winmm.lib")
 
 int gX = 0;
 int gY = 0;
@@ -25,8 +33,16 @@ void Update() {
     }
 }
 
-int main() {
+//int main() {
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    Sound::SOUNDDATA sd;
+
+    Sound::Load("H.wav", &sd);
+    Sound::Play(&sd);
+
     Start();
+
+    Sound::DestroySoundData(&sd);
 
     return 0;
 }

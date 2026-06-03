@@ -1,15 +1,13 @@
 ﻿#ifndef __DRAWING_H__
 #define __DRAWING_H__
 
-#include <stdint.h>
+#include <cstdint>
 #include <windows.h>
 #include <wingdi.h>
 
 #define WINDOW_W 800
 #define WINDOW_H 600
 #define FPS 60
-
-extern int8_t *pImage;
 
 int Start();
 void Update();

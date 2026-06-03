@@ -1,16 +1,35 @@
-﻿#include "drawing.h"
-#include <stdio.h>
-#include <time.h>
-#include <stdio.h>
-
-#pragma comment(lib, "user32.lib")
-#pragma comment(lib, "Gdi32.lib")
+﻿#include "drawing.hpp"
+#include <cstdio>
+#include <ctime>
+#include "Wav.hpp"
 
 #define CHANNEL 4
 #define BITCOUNT 8 * CHANNEL
 #define MILLISEC_PER_FRAME 1000 / FPS
 
 int8_t *pImage = NULL;
+
+uint8_t* ConvertTo16bit(wav::WAVEINFO* wi, uint8_t* data) {
+    uint16_t sample_size = wi->info.pcm_waveformat.w_bits_per_sample / 8;
+    uint32_t sample_num = wi->data_size / sample_size;
+    uint8_t* new_data = (uint8_t*)malloc(sample_num * 2);
+
+    for(int i = 0; i < sample_num; i++) {
+        uint64_t buffer = 0;
+        for(int j = 0; j < sample_size; j++) {
+            buffer = (buffer << 8) | data[i * sample_size + (sample_size - j - 1)];
+        }
+
+        buffer ^= 1 << (sample_size * 8 - 1);
+        buffer = (double)buffer / ((1 << (sample_size * 8)) - 1) * 65535 - 32768;
+        new_data[i * 2    ] = (buffer     ) & 0xFF;
+        new_data[i * 2 + 1] = (buffer >> 8) & 0xFF;
+    }
+
+    wi->data_size = sample_num * 2;
+
+    return new_data;
+}
 
 void setClientSize(HWND hWnd, int width, int height) {
     RECT cr, wr;
@@ -320,7 +339,6 @@ void DrawCircle(int x0, int y0, int r, int32_t color, int fillFlag) {
 
 void _DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int32_t color, int dy) {
     int h = y1 - y3;
-    printf("%d ", h);
     for(int y = 0; y * dy < h * dy; y += dy) {
         int _x1 = y * (x1 - x2) / (y1 - y2) + x2;
         int _x2 = y * (x1 - x3) / (y1 - y3) + x3;
@@ -388,3 +406,4 @@ void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int32_t color)
         _DrawTriangle(x3, y3, x2, y2, xa, y2, color, 1);
     }
 }
+

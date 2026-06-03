@@ -1,2 +1,4 @@
-﻿
+﻿-std=c++20
 -I./includes
+-IC:/Program Files (x86)/OpenAL 1.1 SDK/include/
+-I./../../Wav/includes/
